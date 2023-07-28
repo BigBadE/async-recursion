@@ -44,7 +44,7 @@ impl ArgLifetime {
 //     async fn f<S, T>(x : S, y : &T) -> Ret;
 //
 // Output:
-//     fn f<S, T>(x : S, y : &T) -> Pin<Box<dyn Future<Output = Ret> + Send>
+//     fn f<S, T>(x : S, y : &T) -> Pin<Box<dyn Future<Output = Ret> + Send + Sync>
 fn transform_sig(sig: &mut Signature, args: &RecursionArgs) {
     // Determine the original return type
     let ret = match &sig.output {
@@ -169,7 +169,7 @@ fn transform_sig(sig: &mut Signature, args: &RecursionArgs) {
     };
 
     let send_bound: TokenStream = if args.send_bound {
-        quote!(+ ::core::marker::Send)
+        quote!(+ ::core::marker::Send + ::core::marker::Sync)
     } else {
         quote!()
     };
